@@ -176,9 +176,10 @@ object AllRoadsLeadToLambdaWorld{
     }
 
     /**
-    But this program mixes two concerns: the logic of our program, and the actual
-    IO instructions. In order to modularise this program we use APIs, i.e. interfaces.
-    For instance, a simple interface for reading and writing strings might go like this.
+    But this program mixes two concerns: the input-ouput logic, and the actual
+    way in which IO instructions are executed. In order to modularise this program 
+    we use APIs, which are commonly implemented as abstract interfaces. For instance, 
+    a simple API for reading and writing strings might go like this.
     */
     
     trait IO{
@@ -204,7 +205,7 @@ object AllRoadsLeadToLambdaWorld{
     strings are read and written. Thus, you may think of your API as the
     wall that protects us from the white walkers ... For instance, if we want
     to implement our IO API using the console, no trace of it will be found
-    at the `echo` program.
+    at the `echo` program, but in the following instance of the API.
     */
     
     object ConsoleIO extends IO{
@@ -214,7 +215,9 @@ object AllRoadsLeadToLambdaWorld{
 
     /**
     In order to reuse our program with a particular instance of the IO API,
-    we simply pass it as an argument.
+    we simply pass it as an argument. Note that we can now implement our original
+    console IO program in a modular way, i.e. by composing modules, namely, the 
+    `echo` program and the API instance.
     */
     
     object Modular{
@@ -230,7 +233,7 @@ object AllRoadsLeadToLambdaWorld{
   object EvilIsBack{
   
     /**
-    But, is that true? Is it a true wall? Well, it happens that this wall
+    But, do those APIs consist of a true wall? Well, it happens that this wall
     has many leaks ... For instance, let's say that we need an implementation
     which uses asynchronous features. This may happen, for instance, if we
     are programming a storage API using slick 2.0, and then we want to upgrade
@@ -332,7 +335,7 @@ object AllRoadsLeadToLambdaWorld{
       }
 
     /**
-    But our `echo` program is now truly generic!
+    But our `echo` program is now truly reusable across any interpretation!
     */
 
     def echoConsole: String = echo(ConsoleIO)
@@ -344,7 +347,7 @@ object AllRoadsLeadToLambdaWorld{
   object MonadicLambdaWorld{
     
     /**
-    We have two problems left: 1) the imperative combinators have nothing to do with the
+    We have two problems still: 1) the imperative combinators have nothing to do with the
     IO API; if we have to implement an API for file system manipulation, logging, etc., we
     will write the very same combinators, once and again; 2) we really need to 
     be able to write our programs in a more concise and understandable way. In this 
@@ -457,5 +460,19 @@ object AllRoadsLeadToLambdaWorld{
       _ <- write(msg)
     } yield msg
 
+    /** 
+    And we could even write this program with conventional syntax, using
+    the `monad` macro in the `org.hablapps.gist` repository. This shows
+    patently that monadic code is just imperative code (written for arbitrary
+    interpretations, not just `Id`)
+    */
+
+    import org.hablapps.gist.monad, monad._
+
+    def echo3[P[_]: IO: cats.Monad]: P[String] = monad {
+      val msg: String = read().run
+      write(msg).run
+      msg
+    }
   }
 }
