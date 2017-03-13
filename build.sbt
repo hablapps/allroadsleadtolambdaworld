@@ -15,3 +15,11 @@ initialCommands in console := """
   |import OnceUponATime.{StringList => SL, IntList => IL, _}
   |import JavaToTheRescue._
   |""".stripMargin
+
+resolvers ++= Seq(
+  "Speech repo - snapshots" at "http://repo.hablapps.com/snapshots")
+
+
+libraryDependencies ++= Seq(
+  "org.hablapps" %% "gist" % "0.1-SNAPSHOT",
+  "org.typelevel" %% "cats" % "0.9.0")
